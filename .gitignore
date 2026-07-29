@@ -1,0 +1,43 @@
+# ==========================================
+# Secrets & Environment Variables (CRITICAL)
+# ==========================================
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# Frontend / Node (frontend/)
+# ==========================================
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ==========================================
+# Backend / Python (backend-ai/)
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+venv_linux/
+.venv/
+*.xlsx
+*.ipynb
+
+# Keep temp_uploads folder directory while ignoring processed files
+backend-ai/temp_uploads/*
+!backend-ai/temp_uploads/.gitkeep
+
+# ==========================================
+# System & IDE Files
+# ==========================================
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
