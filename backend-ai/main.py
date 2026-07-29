@@ -6,12 +6,14 @@ from pathlib import Path
 from typing import Annotated
 from csv_converter import csv_converter
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 
+load_dotenv()
 
 app = FastAPI()
 origins = [
     "http://localhost:5173",  # Default Vite + React port
-    os.getenv("VITE_API_URL", "*")
+    os.getenv("FRONTEND_URL", "http://localhost:5173"),
 ]
 app.add_middleware(
     CORSMiddleware,
