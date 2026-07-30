@@ -17,6 +17,7 @@ MOHAMMAD JHANGIR KHAN	K865533(2)	CWR09012444	06-08-2030	06-01-2028	2025/11/27-20
 RAZZAQ ABDUL	P105455(8)	CWR07036111	01-07-2029	26-08-2025	2023/02/07-2028/02/06	
 """
 COLUMNS = ['name', 'role', 'hkid', 'cwr_card_no', 'cwr_expiry_date', 'green_card_expiry_date', 'spp_expiry_date']
+DATE_COLS = ['cwr_expiry_date', 'green_card_expiry_date', 'spp_expiry_date']
 
 def fix_bad_zipfile(file_path):
     with open(file_path, 'r+b') as f:
@@ -32,38 +33,87 @@ def fix_bad_zipfile(file_path):
 # fix_bad_zipfile('Book1.xlsx')
 random.seed()
 
-def parse_tsv(raw_text: str) -> pd.DataFrame:
-    """
-    Parses raw text data (TSV format) into a pandas DataFrame.
-    """
+def format_to_yyyy_mm_dd(val: str) -> str:
+    """Standardizes dates from DD-MM-YYYY, DD/MM/YYYY, or YYYY/MM/DD to YYYY-MM-DD."""
+    if pd.isna(val) or not str(val).strip():
+        return ""
+    val_str = str(val).strip()
+
+    # Extract end date if date range (e.g. "2025/11/27-2030/11/26")
+    if "-" in val_str and "/" in val_str:
+        val_str = val_str.split("-")[-1].strip()
+
     try:
-        df = pd.read_csv(io.StringIO(raw_text.strip()), sep="\t", header=None)
+        # Determine if year is first (YYYY/MM/DD or YYYY-MM-DD)
+        is_year_first = bool(
+            re.match(r"^\d{4}[-/]\d{1,2}[-/]\d{1,2}$", val_str)
+        )
+        parsed = pd.to_datetime(
+            val_str, dayfirst=not is_year_first, errors="coerce"
+        )
 
-        if len(df.columns) == 6:
-            df.columns = [
-                'name',
-                'hkid',
-                'cwr_card_no',
-                'cwr_expiry_date',
-                'green_card_expiry_date',
-                'spp_expiry_date',
-            ]
-            df['role'] = 'Security Guard'
-        elif len(df.columns) == 7:
-            df.columns = COLUMNS
+        if pd.notna(parsed):
+            return parsed.strftime("%Y-%m-%d")
+    except Exception:
+        pass
 
-        # Extract end date from "YYYY/MM/DD-YYYY/MM/DD"
-        df['spp_expiry_date'] = df['spp_expiry_date'].apply(
-            lambda x: str(x).split('-')[-1].strip()
-            if '-' in str(x)
-            else str(x))
-        
-        # Fill missing 'role' values with "Security Guard"
-        df["role"] = df["role"].fillna("Security Guard").replace("", "Security Guard")
-        return df
+    return val_str
+
+
+def normalize_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """Standardizes DataFrame structure, fills default values, formats dates, and orders columns."""
+    num_cols = len(df.columns)
+    if num_cols < 6:
+        raise ValueError(f"Insufficient columns in input data ({num_cols} < 6)")
+
+    if num_cols == 6:
+        df.columns = [
+            'name',
+            'hkid',
+            'cwr_card_no',
+            'cwr_expiry_date',
+            'green_card_expiry_date',
+            'spp_expiry_date',
+        ]
+        df['role'] = 'Security Guard'
+    else:
+        df = df.iloc[:, :7].copy()
+        df.columns = COLUMNS
+
+    # Ensure role defaults to 'Security Guard' if blank or missing
+    if 'role' not in df.columns:
+        df['role'] = 'Security Guard'
+    else:
+        df['role'] = (
+            df['role'].fillna('Security Guard').replace('', 'Security Guard')
+        )
+
+    # Ensure all schema columns exist
+    for col in COLUMNS:
+        if col not in df.columns:
+            df[col] = ""
+
+    # Apply date normalization across date columns
+    for col in DATE_COLS:
+        if col in df.columns:
+            df[col] = df[col].apply(format_to_yyyy_mm_dd)
+
+    return df[COLUMNS]
+
+
+def parse_tsv(raw_text: str) -> pd.DataFrame | None:
+    """Parses raw TSV/space-separated text into a standardized DataFrame."""
+    try:
+        df = pd.read_csv(
+            io.StringIO(raw_text.strip()),
+            sep=r"\t+|\s{2,}",
+            engine="python",
+            header=None,
+        )
+        return normalize_dataframe(df)
     except Exception as e:
-        raise ValueError(f"Error parsing TSV data: {e}")
-
+        print(f"Error parsing raw text data: {e}")
+        return None
     
 def csv_converter(    
     input_source: str | bytes,
@@ -84,19 +134,58 @@ def csv_converter(
         else:
             raise ValueError(f"Unsupported file format: '{ext}'")
 
-        if len(df.columns) == len(COLUMNS):
-            df.columns = COLUMNS
+        df = normalize_dataframe(df)
 
-        if "role" not in df.columns:
-            df["role"] = "Security Guard"
-        else:
-            df["role"] = (
-                df["role"].fillna("Security Guard").replace("", "Security Guard")
-            )
-        random_str = ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
-        output_filename = f"exported_{random_str}.csv"
+    # --- INPUT IS A RAW TEXT ---
+    elif isinstance(input_source, str):
+        print("Processing raw text data...")
+        # df = parse_tsv(raw_text=input_source)
+        print("Delegating to Cloud AI...")
+        try:
+            json_text = convert_data_to_json(input_source)
+            # Clean markdown formatting if present
+            if isinstance(json_text, str):
+                json_text = json_text.replace("```json", "").replace("```", "").strip()
 
-    # --- INPUT IS A FILE ---
+            print(type(json_text))
+
+            df = pd.DataFrame(json.loads(json_text))
+            df = normalize_dataframe(df)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Cloud AI response was not valid JSON: {e}") from e
+        except Exception as e:
+            raise ValueError(f"Cloud AI processing failed: {e}") from e
+        print("\nParsed Data:")
+        print(df)
+    else:
+        raise TypeError("Invalid input source. Must be a file path, bytes, or raw text string.")
+
+    random_string = ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
+    output_filename = f"exported_{random_string}.csv"
+    output_buffer = io.BytesIO()
+    output_buffer.write(df.to_csv(index=False).encode('utf-8-sig'))
+    output_buffer.seek(0)
+    return output_buffer, output_filename
+
+# input_file = 'Book1.xlsx'  # Replace with your actual file path or raw texts
+# csv_converter(input_file)
+# # csv_converter(raw_text)
+# csv_converter(raw_text2)
+
+# df = pd.read_csv('note.txt', header=None)
+# columns = ['name', 'role', 'hkid', 'cwr_card_no', 'cwr_expiry_date', 'green_card_expiry_date', 'spp_expiry_date']
+# df.columns = columns
+
+# print([date.strip() for date in df['green_card_expiry_date']])
+
+# date_str = "10/03-2027"
+
+# # Find all characters that are not numbers or spaces
+# separators = re.findall(r"[^\d]", date_str)
+# print(separators)
+
+
+# --- INPUT IS A FILE ---
     # elif isinstance(input_source, str) and Path(input_source).is_file():
     #     file = Path(input_source)
         
@@ -126,53 +215,3 @@ def csv_converter(
     #         output_filename = f"{file_name}.csv"
     #     except Exception as e:
     #         print(f"Error occurred while converting {file}: {e}")
-    # --- INPUT IS A RAW TEXT ---
-    elif isinstance(input_source, str):
-        print("Detected raw text data. Processing via Cloud AI...")
-        try:
-            df = parse_tsv(raw_text=input_source)
-            if df is None or df.empty:
-                # Process the raw text data
-                json_text = convert_data_to_json(input_source)
-                # Clean markdown formatting if present
-                if isinstance(json_text, str):
-                    json_text = json_text.replace("```json", "").replace("```", "").strip()
-
-                print(type(json_text))
-
-                df = pd.DataFrame(json.loads(json_text))
-
-                if "role" not in df.columns:
-                    df["role"] = "Security Guard"
-                else:
-                    df["role"] = df["role"].fillna("Security Guard").replace("", "Security Guard")
-            print("\nParsed Data:")
-            print(df)
-            random_string = ''.join(random.choice(string.ascii_lowercase) for _ in range(8))
-            output_filename = f"exported_{random_string}.csv"
-        except Exception as e:
-            print(f"Error occurred while processing raw text data: {e}")
-    else:
-        raise TypeError("Invalid input source. Must be a file path, bytes, or raw text string.")
-
-    output_buffer = io.BytesIO()
-    output_buffer.write(df.to_csv(index=False, encoding='utf-8-sig').encode('utf-8-sig'))
-    output_buffer.seek(0)
-    return output_buffer, output_filename
-
-# input_file = 'Book1.xlsx'  # Replace with your actual file path or raw texts
-# csv_converter(input_file)
-# # csv_converter(raw_text)
-# csv_converter(raw_text2)
-
-# df = pd.read_csv('note.txt', header=None)
-# columns = ['name', 'role', 'hkid', 'cwr_card_no', 'cwr_expiry_date', 'green_card_expiry_date', 'spp_expiry_date']
-# df.columns = columns
-
-# print([date.strip() for date in df['green_card_expiry_date']])
-
-# date_str = "10/03-2027"
-
-# # Find all characters that are not numbers or spaces
-# separators = re.findall(r"[^\d]", date_str)
-# print(separators)
