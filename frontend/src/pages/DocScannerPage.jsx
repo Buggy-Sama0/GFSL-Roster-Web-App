@@ -13,9 +13,12 @@ export default function DocScannerPage() {
     const formData = new FormData();
     if (file) formData.append('file', file);
     if (textInput.trim()) formData.append('raw_text', textInput);
-    const API_BASE_URL = import.meta.env.BACKEND_API_URL;
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL;
 
     try {
+      if (!import.meta.env.VITE_BACKEND_API_URL) {
+        console.warn('VITE_BACKEND_API_URL is not set. Please check your .env file.');
+      }
       setIsSubmitting(true);
       const response = await fetch(`${API_BASE_URL}/convert`, {
         method: 'POST',

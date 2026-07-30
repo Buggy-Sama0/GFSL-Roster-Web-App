@@ -13,7 +13,7 @@ load_dotenv()
 app = FastAPI()
 origins = [
     "http://localhost:5173",  # Default Vite + React port
-    os.getenv("FRONTEND_URL", "http://localhost:5173"),
+    os.getenv("FRONTEND_URL", "https://localhost:5173"),
 ]
 app.add_middleware(
     CORSMiddleware,
