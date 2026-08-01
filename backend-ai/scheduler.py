@@ -23,7 +23,7 @@ def start_scheduler():
     )
     if not scheduler.running:
         scheduler.start()
-        print("Scheduler started: Configured to run daily at 9:00 AM.")
+        print("Scheduler started: Running every 1 minute.")
 
 
 def stop_scheduler():

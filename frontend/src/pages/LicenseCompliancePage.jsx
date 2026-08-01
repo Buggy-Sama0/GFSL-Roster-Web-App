@@ -23,7 +23,7 @@ export default function LicenseCompliancePage({children}) {
   const [currentPage, setCurrentPage] = useState(0);
 
   // const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8000';
-  const API_BASE_URL = 'http://localhost:8000'
+  // const API_BASE_URL = 'http://localhost:8000'
 
   useEffect(() => {
     setCurrentLicenseExpiry(urgentGuards);
