@@ -45,7 +45,7 @@ def get_email_notification():
 
     expired_records = [guard for guard in records if guard["status"] == "expired"]
     expiring_records = [guard for guard in records if guard["status"] == "expiring_soon"]
-    
+
     item1 = "".join(
             f'<li><strong>{guard["name"]}</strong> of HKID <strong>{guard["hkid"]}</strong> - <strong>{guard["license"]}</strong> expired.</li>'
             for guard in expired_records
@@ -58,7 +58,8 @@ def get_email_notification():
 
     html_message = f"Following guards need renewal:<ul>{item1}{item2}</ul>"
     send_email(
-        to_address='limbuc489@gmail.com',
+        to_address='gurkha.forces@gurkhahk.site',
+        # to_addres='limbuc489@gmail.com',
         subject='Urgent License Renewal Reminder',
         message=html_message
     )
