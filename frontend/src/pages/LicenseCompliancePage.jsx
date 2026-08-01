@@ -16,10 +16,14 @@ export default function LicenseCompliancePage({children}) {
   // Using custom hook to get guard expiry status and urgent guards
   const { guardStatus, urgentGuards, _ } = useLicenseStatus();
   // console.log('LicenseCompliancePage: guardStatus:', guardStatus.slice(4));
+  // console.log('LicenseCompliancePage: urgentGuards:', urgentGuards);
 
   // Pagination state variables
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(0);
+
+  // const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8000';
+  const API_BASE_URL = 'http://localhost:8000'
 
   useEffect(() => {
     setCurrentLicenseExpiry(urgentGuards);
@@ -84,6 +88,33 @@ export default function LicenseCompliancePage({children}) {
   //     return guard;
   //   }));
   // };
+
+  // async function handleSendEmail() {
+  //   if (!urgentGuards || urgentGuards.length === 0) {
+  //     console.log('No urgent guards to send email for.');
+  //     return;
+  //   }
+  //   const response = await fetch(`${API_BASE_URL}/send-email`, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify({
+  //       expiring_licences: urgentGuards,
+  //       to_address: 'limbuc489@gmail.com',
+  //       subject: 'Urgent License Renewal Reminder'
+  //     })
+  //   });
+
+  //   if (!response.ok) {
+  //     console.error('Failed to send email:', response);
+  //   }
+  //   console.log(response);
+  // }
+
+  // useEffect(() => {
+  //   handleSendEmail();
+  // }, [urgentGuards]); 
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-[#0a0e17]">

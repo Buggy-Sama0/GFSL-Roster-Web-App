@@ -1,16 +1,28 @@
 import os
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
-from realtime import Optional
+from realtime import Field, Optional
 from pathlib import Path
 from typing import Annotated
 from csv_converter import csv_converter
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from pydantic import BaseModel
+from contextlib import asynccontextmanager
+from scheduler import start_scheduler, stop_scheduler
+
 
 load_dotenv()
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Runs when FastAPI starts up
+    start_scheduler()
+    yield
+    # Runs when FastAPI shuts down
+    stop_scheduler()
+
+app = FastAPI(lifespan=lifespan)
 origins = [
     "http://localhost:5173",  # Default Vite + React port
     os.getenv("FRONTEND_URL", "http://localhost:5173"),
@@ -60,25 +72,27 @@ async def convert_data(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred during conversion: {str(e)}")
 
-def remove_file(path: str):
-    """Background task to delete temporary file after download."""
-    try:
-        if os.path.exists(path):
-            os.remove(path)
-            print(f"Cleaned up temporary file: {path}")
-    except Exception as e:
-        print(f"Error deleting file {path}: {e}")
+# class EmailPayload(BaseModel):
+#     expiring_licences: list[dict]
+#     to_address: str
+#     subject: str = Field(..., max_length=200)
 
-@app.get("/download/{filename}")
-async def download_file(filename: str):
-    """
-    Endpoint to download a file from the server.
-    """
-    file_path = f"{filename}"
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="File not found")
+# @app.post("/send-email")
+# async def send_email_endpoint(payload: EmailPayload, background_tasks: BackgroundTasks):
+#     try:
+#             f'<li>{guard["name"]} ({guard["hkid"]})</li>'
+#             for guard in payload.expiring_licences
+#         )
 
-    return FileResponse(path=file_path, filename=filename, media_type='text/csv')
+#         html_message = f"Following guards need renewal:<ul>{items}</ul>"
+#         background_tasks.add_task(
+#             send_email(to_address=payload.to_address,
+#             subject=payload.subject,
+#             message=html_message)
+#         )
+#         return JSONResponse(status_code=200, content={"message": "Email sent successfully"})
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
