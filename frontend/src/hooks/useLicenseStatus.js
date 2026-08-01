@@ -28,6 +28,8 @@ export function useLicenseStatus() {
         return data.map((guard) => {
             let absoluteStatus = 'Valid';
             let minDaysLeft = Infinity;
+            let expiringLicenses = [];
+            let expiredLicenses = [];
 
             for (const license of licences) {
                 if (!guard[license]) {
@@ -41,6 +43,12 @@ export function useLicenseStatus() {
                 if (diffDays < minDaysLeft) {
                     minDaysLeft = diffDays;
                 }
+                if (diffDays <= 30) {
+                    expiringLicenses.push(license);
+                }
+                if (diffDays < 0) {
+                    expiredLicenses.push(license);
+                }
             }
 
             if (minDaysLeft <= 0) {
@@ -53,7 +61,9 @@ export function useLicenseStatus() {
             return {
                 ...guard,
                 status: absoluteStatus,
-                daysLeft: minDaysLeft === Infinity ? null : minDaysLeft
+                daysLeft: minDaysLeft === Infinity ? null : minDaysLeft,
+                expiringLicenses: expiringLicenses,
+                expiredLicenses: expiredLicenses,
             };
         });
     }, [data]);

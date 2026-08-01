@@ -15,7 +15,7 @@ export default function LicenseCompliancePage({children}) {
 
   // Using custom hook to get guard expiry status and urgent guards
   const { guardStatus, urgentGuards, _ } = useLicenseStatus();
-  // console.log('LicenseCompliancePage: guardStatus:', guardStatus.slice(4));
+  // console.log('LicenseCompliancePage: guardStatus:', guardStatus);
   // console.log('LicenseCompliancePage: urgentGuards:', urgentGuards);
 
   // Pagination state variables
@@ -236,13 +236,14 @@ export default function LicenseCompliancePage({children}) {
                     <td className="p-4 text-emerald-600 font-semibold text-sm">{guard.cwr_card_no}</td>
                     
                     {/* CWR Expiry Date */}
-                    <td className="p-4 text-emerald-600 font-semibold text-sm">{guard.cwr_expiry_date}</td>
+                    <td className={`p-4 ${guard.expiredLicenses.includes('cwr_expiry_date') ? 'text-red-700' : guard.expiringLicenses.includes('cwr_expiry_date') ? 'text-amber-700' : 'text-emerald-600'} font-semibold text-sm`}>{guard.cwr_expiry_date}</td>
 
                     {/* Green Card Expiry Date */}
-                    <td className="p-4 text-emerald-600 font-semibold text-sm">{guard.green_card_expiry_date}</td>
+                    <td 
+                    className={`p-4 ${guard.expiredLicenses.includes('green_card_expiry_date') ? 'text-red-700' : guard.expiringLicenses.includes('green_card_expiry_date') ? 'text-amber-700' : 'text-emerald-600'} font-semibold text-sm`}>{guard.green_card_expiry_date}</td>
 
                     {/* SPP Expiry Date */}
-                    <td className="p-4 text-emerald-600 font-semibold text-sm">{guard.spp_expiry_date}</td>
+                    <td className={`p-4 ${guard.expiredLicenses.includes('spp_expiry_date') ? 'text-red-700' : guard.expiringLicenses.includes('spp_expiry_date') ? 'text-amber-700' : 'text-emerald-600'} font-semibold text-sm`}>{guard.spp_expiry_date}</td>
 
                     {/* Dynamic Status Badges */}
                     <td className="p-4">
