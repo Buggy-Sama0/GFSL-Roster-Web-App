@@ -58,7 +58,7 @@ def get_email_notification():
 
     html_message = f"Following guards need renewal:<ul>{item1}{item2}</ul>"
     send_email(
-        to_address='gurkha.forces@gurkhahk.site',
+        to_address='gurkha.forces@gmail.com',
         # to_addres='limbuc489@gmail.com',
         subject='Urgent License Renewal Reminder',
         message=html_message
