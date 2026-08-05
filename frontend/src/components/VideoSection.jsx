@@ -7,7 +7,7 @@ export default function VideoSection() {
       id: 'method-1',
       title: 'Method 1: Raw Text Copy & Paste',
       badge: 'AI isprocessing each record one by one so it may take a few seconds to process.',
-      videoSrc: '/public/screen-capture-1.mp4',
+      videoSrc: '/screen-capture-1.mp4',
       steps: [
         'Copy unstructured text containing guard records conatining filelds: name, hkid, cwr_card_no, cwr_expiry_date, green_card_expiry_date, spp_expiry_date.',
         'Click Process to automatically parse into CSV.',
@@ -17,7 +17,7 @@ export default function VideoSection() {
       id: 'method-2',
       title: 'Method 2: File Upload',
       badge: 'Quickest',
-      videoSrc: '/public/screen-capture-2.mp4',
+      videoSrc: '/screen-capture-2.mp4',
       steps: [
         'Click the + attachment icon.',
         'Click Upload to extract data.',
@@ -52,7 +52,6 @@ export default function VideoSection() {
                 loop
                 playsInline
                 className="w-full h-full object-cover"
-                poster={`/videos/${method.id}-poster.jpg`} // Optional thumbnail image
               >
                 Your browser does not support the video tag.
               </video>
