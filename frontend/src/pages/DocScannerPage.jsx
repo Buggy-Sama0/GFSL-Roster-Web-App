@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState, useEffect} from 'react';
+import VideoSection from '../components/VideoSection.jsx';
 
 export default function DocScannerPage() {
   const [file, setFile] = useState(null);
@@ -9,7 +10,6 @@ export default function DocScannerPage() {
   const [previewData, setPreviewData] = useState([]);
 
   const handleSubmit = async () => {
-
     const formData = new FormData();
     if (file) formData.append('file', file);
     if (textInput.trim()) formData.append('raw_text', textInput);
@@ -69,7 +69,7 @@ export default function DocScannerPage() {
       {/* Chat Message Thread Container */}
       <div className="flex-1 overflow-y-auto space-y-4 mb-4 pr-2">
         {/* System Welcome Message Bubble */}
-        <div className="flex gap-3 items-start">
+        {/* <div className="flex gap-3 items-start">
           <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
             AI
           </div>
@@ -79,9 +79,10 @@ export default function DocScannerPage() {
               Click the <strong className="text-blue-600">+</strong> button below to attach employee records, or paste raw text directly into the chat box.
             </p>
           </div>
-        </div>
+        </div> */}
 
-        <InputExampleDemo />
+        {/* <InputExampleDemo /> */}
+        <VideoSection />
 
 
         {/* LOADING UI STATE IN CHAT THREAD */}

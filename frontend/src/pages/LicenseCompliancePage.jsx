@@ -270,16 +270,16 @@ export default function LicenseCompliancePage({children}) {
                         {/* Trigger state on click */}
                         <button 
                           onClick={() => setSelectedRecord(guard)} 
-                          className="text-blue-500 hover:text-blue-700 hover:underline"
+                          className="text-blue-500 hover:text-blue-700 hover:underline text-[15px]"
                         >
                           View
                         </button>
-                        {guard.status !== 'Valid' && (
+                        {/* {guard.status !== 'Valid' && (
                           <>
                             <span className="text-slate-200 select-none">•</span>
-                            <button className="text-orange-500 hover:text-orange-700 hover:underline">Renew</button>
+                            <button className="text-orange-500 hover:text-orange-700 hover:underline text-[15px]">Renew</button>
                           </>
-                        )}
+                        )} */}
                       </div>
                     </td>
                   </tr>

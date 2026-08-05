@@ -140,7 +140,7 @@ def csv_converter(
     elif isinstance(input_source, str):
         print("Processing raw text data...")
         # df = parse_tsv(raw_text=input_source)
-        print("Delegating to Cloud AI...")
+        print("Passing to Cloud AI...")
         try:
             json_text = convert_data_to_json(input_source)
             # Clean markdown formatting if present

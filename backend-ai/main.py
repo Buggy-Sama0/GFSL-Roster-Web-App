@@ -25,6 +25,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 origins = [
     "http://localhost:5173",  # Default Vite + React port
+    "http://127.0.0.1:5173",  # Default Vite + React port
     os.getenv("FRONTEND_URL", "http://localhost:5173"),
 ]
 app.add_middleware(
