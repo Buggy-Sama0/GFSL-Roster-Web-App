@@ -1,4 +1,3 @@
-
 export default function DialogBox({ ModalData, onResolve, onClose }) {
     return (
             <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">

@@ -7,12 +7,14 @@ import { LicenseExpiryProvider } from './context/LicenseExpiryContext';
 import { SiteProvider } from './context/SiteContext';
 import LoginPage from './pages/LoginPage';
 import supabase from './services/supabase/client';
+import { useIdleTimeout } from './components/hooks/useIdleTimeout';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('roster');
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState(null);
 
+  useIdleTimeout(30); // idle timeout to 30 minutes
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {

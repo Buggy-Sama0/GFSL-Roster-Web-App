@@ -219,7 +219,7 @@ export default function LicenseCompliancePage({children}) {
                 </tr>
               ) : (
                 paginatedGuards.map((guard) => (
-                  <tr key={guard.id} className="hover:bg-slate-50/50 transition text-xs">
+                  <tr key={guard.id} className="hover:bg-gray-700 transition text-xs">
                     
                     {/* Guard Name Info Block */}
                     <td className="p-4 pl-6">
@@ -323,6 +323,32 @@ export default function LicenseCompliancePage({children}) {
 
 function DetailDrawer({ record, onClose }) {
   const initials = record.name ? record.name.split(' ').map(n => n[0]).join('') : '??';
+  const [file, setFile] = useState(null);
+
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    if (file) formData.append('file', file);
+    formData.append('license_file', file);
+
+    try {
+      const response = await fetch('http://localhost:8000/extract-data', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const fdata = await response.json();
+      console.log('File Data Extracted:', fdata);
+
+
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex overflow-hidden">
@@ -442,12 +468,18 @@ function DetailDrawer({ record, onClose }) {
 
         {/* Action Panel Buttons */}
         <div className="px-6 py-4 border-t border-slate-100 space-y-2">
-          <button className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-semibold transition-colors flex items-center justify-center gap-2">
+          <label className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-semibold transition-colors flex items-center justify-center gap-2">
+            <input
+              type="file"
+              className="hidden"
+              accept="image/*,.pdf,.xlsx,.csv,.txt"
+              onChange={handleSubmit}
+            />
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/>
             </svg>
             {record.status === 'Expired' ? 'Re-scan & Renew' : 'Update Document'}
-          </button>
+          </label>
           <button className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-[13px] font-semibold transition-colors">
             Send Renewal Reminder
           </button>

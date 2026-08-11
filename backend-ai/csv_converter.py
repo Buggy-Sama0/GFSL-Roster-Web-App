@@ -7,15 +7,6 @@ import random
 import io
 from image_to_ocr import convert_data_to_json
 
-raw_text="""
-Chan Tai Man,Security Guard,A123456(7),CWR98765432,2027-08-15,2028-03-20,2027-11-30
-Wong Siu Ming,Senior Guard,B876543(2),CWR12345678,2026-12-10,2027-06-14,2028-01-15
-Lee Wai Ho,Site Inspector,Z543210(9),CWR55667788,2028-05-01,2029-09-10,2027-04-22
-"""
-raw_text2 = """
-MOHAMMAD JHANGIR KHAN	K865533(2)	CWR09012444	06-08-2030	06-01-2028	2025/11/27-2030/11/26	
-RAZZAQ ABDUL	P105455(8)	CWR07036111	01-07-2029	26-08-2025	2023/02/07-2028/02/06	
-"""
 COLUMNS = ['name', 'role', 'hkid', 'cwr_card_no', 'cwr_expiry_date', 'green_card_expiry_date', 'spp_expiry_date']
 DATE_COLS = ['cwr_expiry_date', 'green_card_expiry_date', 'spp_expiry_date']
 

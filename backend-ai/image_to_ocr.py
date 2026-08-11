@@ -2,8 +2,14 @@ import json
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
+import base64
 
 load_dotenv()  # Load environment variables from .env file
+
+client = OpenAI(
+    api_key=os.environ.get("DEEPSEEK_API_KEY"),
+    base_url="https://api.deepseek.com"
+)
 
 def convert_data_to_json(data):
     """
@@ -15,11 +21,6 @@ def convert_data_to_json(data):
     Returns:
         str: The converted JSON data.
     """
-    client = OpenAI(
-        api_key=os.environ.get("DEEPSEEK_API_KEY"),
-        base_url="https://api.deepseek.com"
-    )
-    
     system_prompt = """
     You are a data extraction assistant. Your task is to convert raw unstructured text into a valid JSON array of worker objects.
 
@@ -63,6 +64,44 @@ def convert_data_to_json(data):
         response_format = {
             'type': 'json_object',
         } 
+    )
+
+    return response.choices[0].message.content
+
+def extract_date_from_image(image):
+    """
+    Placeholder function for extracting date from an image.
+    """
+    system_prompt = """
+    You are a data extraction assistant. Extract the expiry date from the license image.
+    Output ONLY the date in YYYY-MM-DD format. If no date is found, output: NONE
+    """
+
+    base64_image = base64.b64encode(image).decode('utf-8')
+
+    messages=[
+            {
+                "role": "system",
+                "content": system_prompt, 
+            },
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "What is the expiry date?"},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}"
+                        },
+                    },
+                ],
+            },
+        ]
+
+    response = client.chat.completions.create(
+        model = "deepseek-chat",
+        messages = messages,
+        stream = False,
     )
 
     return response.choices[0].message.content

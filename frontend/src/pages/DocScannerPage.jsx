@@ -13,8 +13,8 @@ export default function DocScannerPage() {
     const formData = new FormData();
     if (file) formData.append('file', file);
     if (textInput.trim()) formData.append('raw_text', textInput);
-    const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8000';
-    // const API_BASE_URL = 'http://localhost:8000'
+    // const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8000';
+    const API_BASE_URL = 'http://localhost:8000'
 
     try {
       if (!import.meta.env.VITE_BACKEND_API_URL) {

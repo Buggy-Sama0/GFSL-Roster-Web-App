@@ -1,3 +1,4 @@
+import io
 import os
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -10,7 +11,8 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 from scheduler import start_scheduler, stop_scheduler
-
+from image_to_ocr import extract_date_from_image
+from PIL import Image
 
 load_dotenv()
 
@@ -72,6 +74,27 @@ async def convert_data(
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred during conversion: {str(e)}")
+
+
+@app.post("/extract-data")
+async def extract_data(file: UploadFile = File()):
+    """
+    Extracts structured data from raw text using OpenAI's API.
+
+    Args:
+        file (UploadFile): The uploaded image file.
+
+    Returns:
+        dict: A dictionary containing the extracted data.
+    """
+    try:
+        file_bytes = await file.read()
+        image = io.BytesIO(file_bytes)
+        extracted_data = extract_date_from_image(image)
+        return image
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Data extraction failed: {str(e)}")
 
 # class EmailPayload(BaseModel):
 #     expiring_licences: list[dict]
