@@ -18,7 +18,7 @@ def check_expiring_licenses():
     Checks for expiring licenses and returns a list of guards with licenses expiring within 30 days.
     """
     today = date.today()
-    threshold = today + timedelta(days=30)
+    threshold = today + timedelta(days=60)
     notify_guards = []
     for licence in LICENSES:
         expired_response = supabase.table("employees").select(f"name, hkid").lt(licence, today.isoformat()).execute()
@@ -30,9 +30,9 @@ def check_expiring_licenses():
         if len(expiring_response.data) > 0:
             for employee in expiring_response.data:
                 notify_guards.append({ "name": employee['name'], "hkid": employee['hkid'], "license": licence, "status": "expiring_soon" })
-                # print(f"Name: {employee['name']}, {licence} expiring within 30 days.")
+                # print(f"Name: {employee['name']}, {licence} expiring within 60 days.")
     if notify_guards is None or len(notify_guards) == 0:
-        print("No guards with licenses expiring within 30 days or expired.")
+        print("No guards with licenses expiring within 60 days or expired.")
         return None
 
     return notify_guards
@@ -52,7 +52,7 @@ def get_email_notification():
         )
 
     item2 = "".join(
-            f'<li><strong>{guard["name"]}</strong> of HKID <strong>{guard["hkid"]}</strong> - <strong>{guard["license"]}</strong> expiring within 30 days.</li>'
+            f'<li><strong>{guard["name"]}</strong> of HKID <strong>{guard["hkid"]}</strong> - <strong>{guard["license"]}</strong> expiring within 60 days.</li>'
             for guard in expiring_records
         )
 

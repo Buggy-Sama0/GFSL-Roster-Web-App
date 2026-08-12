@@ -43,17 +43,17 @@ export function useLicenseStatus() {
                 if (diffDays < minDaysLeft) {
                     minDaysLeft = diffDays;
                 }
-                if (diffDays <= 30) {
+                if (diffDays <= 60) {
                     expiringLicenses.push(license);
                 }
-                if (diffDays < 0) {
+                if (diffDays <= 0) {
                     expiredLicenses.push(license);
                 }
             }
 
             if (minDaysLeft <= 0) {
             absoluteStatus = 'Expired';
-            } else if (minDaysLeft <= 30) {
+            } else if (minDaysLeft <= 60) {
             absoluteStatus = 'Expiring Soon';
             }
 

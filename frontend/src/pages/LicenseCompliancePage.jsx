@@ -148,7 +148,7 @@ export default function LicenseCompliancePage({children}) {
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Expiring within (&lt;30 Days)</p>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Expiring within 60 Days</p>
               <h3 className="text-3xl font-black text-amber-500 mt-1">{urgentCount}</h3>
             </div>
             <span className="text-3xl bg-amber-50 p-3 rounded-xl">🕒</span>
