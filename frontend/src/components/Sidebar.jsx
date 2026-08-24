@@ -1,13 +1,17 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 
-export default function Sidebar({ activeTab, onTabChange, onLogout }) {
-  const navItems = [
-    { id: 'roster', label: 'Active Roster', icon: '' },
-    { id: 'scanner', label: 'AI Doc Scanner', icon: '' },
-    { id: 'compliance', label: 'Compliance & Licenses', icon: '' },
-    { id: 'leave', label: 'Leave Management', icon: '' },
-    { id: 'settings', label: 'Settings', icon: '' }
+export default function Sidebar({ onLogout, checkAdmin }) {
+  const allNavItems = [
+    { path: '/', label: 'Active Roster', adminOnly: false },
+    { path: '/scan', label: 'AI Doc Scanner', adminOnly: false },
+    { path: '/licences', label: 'Compliance & Licenses', adminOnly: false },
+    { path: '/accounts', label: 'Accounts Receivable', adminOnly: true },
+    { path: '/leave', label: 'Leave Management', adminOnly: false },
+    { path: '/settings', label: 'Settings', adminOnly: false },
   ];
+
+  const navItems = allNavItems.filter((item) => !item.adminOnly || checkAdmin);
 
   return (
     <aside className="w-64 bg-slate-900 text-white flex flex-col justify-between shrink-0 h-screen">
@@ -21,24 +25,22 @@ export default function Sidebar({ activeTab, onTabChange, onLogout }) {
         </div>
 
         {/* Navigation Items */}
-        <nav className="p-4 space-y-1">
-          {navItems.map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onTabChange(item.id)}
-                className={`flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-semibold transition ${
+        <nav className="p-4 space-y-1 flex flex-col">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-semibold transition ${
                   isActive 
                     ? 'bg-blue-600/10 text-blue-400 border border-blue-500/20' 
                     : 'text-slate-400 hover:bg-slate-800 hover:text-white border border-transparent'
-                }`}
-              >
-                <span className="text-lg">{item.icon}</span>
-                {item.label}
-              </button>
-            );
-          })}
+                }`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
         </nav>
       </div>
 

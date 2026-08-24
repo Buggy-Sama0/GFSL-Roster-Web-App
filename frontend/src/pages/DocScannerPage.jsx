@@ -1,13 +1,19 @@
 import React from 'react';
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import VideoSection from '../components/VideoSection.jsx';
 
 export default function DocScannerPage() {
   const [file, setFile] = useState(null);
-  const [textInput, setTextInput] = useState('');
+  const [textInput, setTextInput] = useState(() => {
+    return sessionStorage.getItem('doc_scanner_text') || '';
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [downloadResult, setDownloadResult] = useState(null);
   const [previewData, setPreviewData] = useState([]);
+
+  useEffect(() => {
+    sessionStorage.setItem('doc_scanner_text', textInput);
+  }, [textInput]);
 
   const handleSubmit = async () => {
     const formData = new FormData();
@@ -40,9 +46,11 @@ export default function DocScannerPage() {
       const url = URL.createObjectURL(blob);
       setDownloadResult({ 'filename': filename, 'url': url });
       setPreviewData(array_items);
-      setFile(null);
-      setTextInput('');
-
+      clearDraft()
+      // Testing use case
+      // const previewUrl = URL.createObjectURL(file);
+      // imgElement = document.getElementById('preview-image');
+      // imgElement.src = previewUrl; 
     } catch (error) {
       console.error('Error submitting form:', error);
     } finally {
@@ -83,7 +91,7 @@ export default function DocScannerPage() {
 
         {/* <InputExampleDemo /> */}
         <VideoSection />
-
+        <img id="preview-image" className="max-h-32 mb-2 rounded-lg border border-slate-200" />
 
         {/* LOADING UI STATE IN CHAT THREAD */}
         {isSubmitting && (
@@ -193,6 +201,7 @@ export default function DocScannerPage() {
             </button>
           </div>
         )}
+        
 
         <div className="flex items-center gap-2">
           {/* Attachment Button */}
@@ -225,7 +234,7 @@ export default function DocScannerPage() {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || (!file && !textInput.trim())}
             className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white p-2.5 rounded-xl transition flex items-center justify-center shrink-0 shadow-sm min-w-[40px] min-h-[40px]"
           >
             {isSubmitting ? (
