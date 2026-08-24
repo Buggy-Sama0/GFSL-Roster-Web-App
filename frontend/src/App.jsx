@@ -81,18 +81,18 @@ export default function App() {
     );
   }
 
-  if (!session) {
-    return (
-      <Routes>
-        <Route path="/login" element={<LoginPage onLoginSuccess={(data) => setSession(data.session)} />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    );
-  } 
+  // if (!session) {
+  //   return (
+  //     <Routes>
+  //       <Route path="/login" element={<LoginPage onLoginSuccess={(data) => setSession(data.session)} />} />
+  //       <Route path="*" element={<Navigate to="/login" replace />} />
+  //     </Routes>
+  //   );
+  // } 
 
   const isAdmin = userRole === 'portal_admin'
 
-  // Simple UI switching layout shell
+  // Simple UI not built yet layout 
   const renderActiveScreen = () => {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
@@ -108,20 +108,27 @@ export default function App() {
   return (
     <SiteProvider>
       <LicenseExpiryProvider>
-        <div className="flex h-screen w-screen bg-gray-50 text-gray-800 overflow-hidden font-sans">
-          <Sidebar onLogout={handleLogout} checkAdmin={isAdmin} />
+        {!session ? (
+          <Routes>
+            <Route path="/login" element={<LoginPage onLoginSuccess={(data) => setSession(data.session)} />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        ) : (
+          <div className="flex h-screen w-screen bg-gray-50 text-gray-800 overflow-hidden font-sans">
+            <Sidebar onLogout={handleLogout} checkAdmin={isAdmin} />
             <Routes>
-              <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/roster" replace />} />
-              <Route path="/" element={<Navigate to={session ? "/roster" : "/login"} replace />} />
+              <Route path="/" element={<Navigate to="/roster" replace />} />
+              <Route path="/login" element={<Navigate to="/roster" replace />} />
               <Route path="/roster" element={<ActiveRosterPage />} />
               <Route path="/scan" element={<DocScannerPage />} />
               <Route path="/licences" element={<LicenseCompliancePage />} />
-              <Route path="/accounts" element={isAdmin ? <AccountStatementPage /> : <Navigate to="/" replace />} />
+              <Route path="/accounts" element={isAdmin ? <AccountStatementPage /> : <Navigate to="/roster" replace />} />
               <Route path="/leave" element={renderActiveScreen()} />
               <Route path="/settings" element={renderActiveScreen()} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<Navigate to="/roster" replace />} />
             </Routes>
-        </div>
+          </div>
+        )}
       </LicenseExpiryProvider>
     </SiteProvider>
   );
