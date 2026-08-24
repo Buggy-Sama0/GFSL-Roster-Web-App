@@ -111,8 +111,9 @@ export default function App() {
         <div className="flex h-screen w-screen bg-gray-50 text-gray-800 overflow-hidden font-sans">
           <Sidebar onLogout={handleLogout} checkAdmin={isAdmin} />
             <Routes>
-              <Route path="/login" element={<Navigate to="/" replace />} />
-              <Route path="/" element={<ActiveRosterPage />} />
+              <Route path="/login" element={!session ? <LoginPage /> : <Navigate to="/roster" replace />} />
+              <Route path="/" element={<Navigate to={session ? "/roster" : "/login"} replace />} />
+              <Route path="/roster" element={<ActiveRosterPage />} />
               <Route path="/scan" element={<DocScannerPage />} />
               <Route path="/licences" element={<LicenseCompliancePage />} />
               <Route path="/accounts" element={isAdmin ? <AccountStatementPage /> : <Navigate to="/" replace />} />

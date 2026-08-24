@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 
 export default function Sidebar({ onLogout, checkAdmin }) {
   const allNavItems = [
-    { path: '/', label: 'Active Roster', adminOnly: false },
+    { path: '/roster', label: 'Active Roster', adminOnly: false },
     { path: '/scan', label: 'AI Doc Scanner', adminOnly: false },
     { path: '/licences', label: 'Compliance & Licenses', adminOnly: false },
     { path: '/accounts', label: 'Accounts Receivable', adminOnly: true },
