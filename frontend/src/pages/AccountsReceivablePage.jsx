@@ -495,22 +495,22 @@ export default function AccountsReceivablePage() {
                       <td className="py-3 text-slate-200 font-medium">{clients.find(client => client.id === inv.client_id)?.client_name || 'Unknown Client'}</td>
                       <td className="py-3 text-slate-400">{inv.issue_date}</td>
                       <td className="py-3 text-white font-bold">${inv.applied_amount.toLocaleString()}</td>
-                      <td className={`py-3 ${inv.status.toLocaleString() === 'paid' ? 'text-green-400' : 'text-red-400'}`}>
+                      <td className={`py-3 ${inv.status.toLocaleString() === 'paid' ? 'text-green-400' : inv.status.toLocaleString()==='pending'? 'text-amber-400' : 'text-red-400'}`}>
                         {inv.status.toLocaleString() === 'paid' ? 'Settled' : `${Math.abs(Math.ceil(((new Date(inv.due_date) - new Date()) / (1000 * 60 * 60 * 24))/30))} Month`}
                       </td>
                       <td className="py-3 text-slate-400">{inv.due_date}</td>
                       {/* <td className="py-3 text-slate-400">{inv.age}</td> */}
                       <td className="py-3 text-right">
                         <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          className={`px-2 py-0.5 rounded text-[12px] font-bold ${
                             inv.status.toLocaleString() === 'paid'
                               ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/50'
-                              : inv.status.toLocaleString() === 'Overdue'
-                              ? 'bg-red-950/80 text-red-400 border border-red-800/50'
+                              : inv.status.toLocaleString() === 'overdue'
+                              ? 'bg-red-950/60 text-red-300 border border-red-800/50'
                               : 'bg-amber-950/80 text-amber-400 border border-amber-800/50'
                           }`}
                         >
-                          {inv.status.toLocaleString() === 'paid' ? inv.status : `${Math.abs(Math.ceil(((new Date(inv.due_date) - new Date()) / (1000 * 60 * 60 * 24))/30))}`>1 ? 'Overdue' : 'Pending'}
+                          {inv.status.toLocaleString() === 'paid' ? inv.status : `${Math.abs(Math.ceil(((new Date(inv.due_date) - new Date()) / (1000 * 60 * 60 * 24))/30))}`>=1 ? 'Overdue' : 'Pending'}
                         </span>
                       </td>
                     </tr>
