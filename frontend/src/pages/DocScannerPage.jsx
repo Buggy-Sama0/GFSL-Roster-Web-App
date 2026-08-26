@@ -54,6 +54,8 @@ export default function DocScannerPage() {
     } catch (error) {
       console.error('Error submitting form:', error);
     } finally {
+      // sessionStorage.setItem('doc_scanner_text', '');
+      setTextInput('')
       setIsSubmitting(false);
     }
   }
@@ -95,19 +97,108 @@ export default function DocScannerPage() {
 
         {/* LOADING UI STATE IN CHAT THREAD */}
         {isSubmitting && (
-          <div className="flex gap-3 items-start animate-pulse">
+          <div className="flex gap-3 items-start">
             <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
               AI
             </div>
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 text-slate-600 text-sm shadow-sm flex items-center gap-3">
-              <svg className="animate-spin h-4 w-4 text-blue-600" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span className="font-medium text-slate-700">Processing input ...</span>
+
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm w-full max-w-md">
+              {/* Header */}
+              {/* <div className="flex items-center gap-2 mb-4">
+                <svg className="animate-spin h-3.5 w-3.5 text-blue-600" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Processing Document</span>
+              </div> */}
+
+              {/* Animated Flow: Text → CSV */}
+              <div className="relative w-full h-28 flex items-center justify-center">
+                {/* Left Node - Text */}
+                <div className="absolute left-2 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1.5 z-10">
+                  <div className="w-11 h-11 rounded-full bg-slate-50 border-2 border-blue-500 flex items-center justify-center shadow-[0_0_16px_rgba(59,130,246,0.25)]">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                      <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-medium">Text</span>
+                </div>
+
+            {/* Center Hub - AI Badge */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+              <div className="relative flex items-center justify-center">
+                {/* Outer Glowing Blur Aura */}
+                <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-emerald-100 to-cyan-200 opacity-20 blur-md animate-pulse"></div>
+
+                {/* Main Badge Body with Gradient Border */}
+                <div className="relative w-11 h-11 rounded-full p-[1px] bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-500 shadow-[0_0_20px_rgba(16,185,129,0.4)]">
+                  <div className="w-full h-full rounded-full bg-slate-950/90 backdrop-blur-sm flex items-center justify-center border border-white/10">
+                    <span className="bg-gradient-to-r from-emerald-400 to-cyan-300 bg-clip-text text-transparent font-black text-[12px] tracking-wider select-none">
+                      AI
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* Right Node - CSV */}
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col items-center gap-1.5 z-10">
+              <div className="w-11 h-11 rounded-full bg-slate-50 border-2 border-emerald-500 flex items-center justify-center shadow-[0_0_16px_rgba(245,158,11,0.25)]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <path d="M8 13h2M8 17h2" strokeWidth="1.5" />
+                  <path d="M12 13h2M12 17h2" strokeWidth="1.5" />
+                </svg>
+              </div>
+              <span className="text-[10px] text-slate-500 font-medium">CSV</span>
+            </div>
+
+            {/* SVG Animated Lines */}
+            <svg className="absolute inset-0 w-full h-full z-0" viewBox="0 0 600 112" fill="none" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="grad-left" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity="1" />
+                  <stop offset="100%" stopColor="#22c55e" stopOpacity="1" />
+                </linearGradient>
+                <linearGradient id="grad-right" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#22c55e" stopOpacity="1" />
+                  <stop offset="100%" stopColor="#f59e0b" stopOpacity="1" />
+                </linearGradient>
+              </defs>
+
+              {/* Left to Center (Extended X: 40 -> 300) */}
+              <path d="M 40 56 Q 170 20 300 56" stroke="url(#grad-left)" strokeWidth="3" fill="none" strokeDasharray="6 6" opacity="0.6">
+                <animate attributeName="stroke-dashoffset" from="24" to="0" dur="1.5s" repeatCount="indefinite" />
+              </path>
+
+              {/* Center to Right (Extended X: 300 -> 560) */}
+              <path d="M 300 56 Q 430 20 560 56" stroke="url(#grad-right)" strokeWidth="3" fill="none" strokeDasharray="6 6" opacity="0.6">
+                <animate attributeName="stroke-dashoffset" from="0" to="24" dur="1.5s" repeatCount="indefinite" />
+              </path>
+
+              {/* Flowing dots (Updated paths to match extended coordinates) */}
+              <circle r="2.5" fill="#3b82f6" opacity="0.9">
+                <animateMotion dur="1.5s" repeatCount="indefinite" path="M 40 56 Q 170 20 300 56" />
+              </circle>
+              <circle r="2.5" fill="#f59e0b" opacity="0.9">
+                <animateMotion dur="1.5s" repeatCount="indefinite" path="M 300 56 Q 430 20 560 56" />
+              </circle>
+            </svg>
           </div>
-        )}
+        </div>
+        <style jsx>{`
+          @keyframes pulse-hub {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.35); }
+            50% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+          }
+        `}</style>
+      </div>
+    )}
 
         {/* Dynamic AI Response Card showing Filename, Preview & Download Link */}
         {downloadResult && !isSubmitting && (
