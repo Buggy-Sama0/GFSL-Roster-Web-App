@@ -13,6 +13,7 @@ from contextlib import asynccontextmanager
 from scheduler import start_scheduler, stop_scheduler
 from image_to_ocr import extract_date_from_image
 from PIL import Image
+import json
 
 load_dotenv()
 
@@ -89,9 +90,9 @@ async def extract_data(file: UploadFile = File()):
     """
     try:
         file_bytes = await file.read()
-        image = io.BytesIO(file_bytes)
-        extracted_data = extract_date_from_image(image)
-        return image
+        extracted_data = extract_date_from_image(file_bytes)
+        parsed_data = json.loads(extracted_data)
+        return JSONResponse(content=parsed_data)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Data extraction failed: {str(e)}")

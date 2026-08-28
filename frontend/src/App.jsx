@@ -16,6 +16,9 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [userRole, setUserRole] = useState(null)
 
+  // Mobile Navigation Drawer State
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   useIdleTimeout(30); // idle timeout to 30 minutes
 
   // Fetch role specifically for the authenticated user ID
@@ -114,8 +117,26 @@ export default function App() {
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         ) : (
-          <div className="flex h-screen w-screen bg-gray-50 text-gray-800 overflow-hidden font-sans">
-            <Sidebar onLogout={handleLogout} checkAdmin={isAdmin} />
+          <div className="flex flex-col md:flex-row h-screen w-screen bg-gray-50 text-gray-800 overflow-hidden font-sans">
+            {/* Mobile Header Bar (Visible on mobile screens) */}
+            <header className="md:hidden flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <svg className="w-7 h-7 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span className="font-bold text-base tracking-wider text-slate-100">GFSL</span>
+              </div>
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                aria-label="Open Navigation Menu"
+              >
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </header>
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} onLogout={handleLogout} checkAdmin={isAdmin}  />
             <Routes>
               <Route path="/" element={<Navigate to="/roster" replace />} />
               <Route path="/login" element={<Navigate to="/roster" replace />} />

@@ -73,33 +73,35 @@ def extract_date_from_image(image):
     Placeholder function for extracting date from an image.
     """
     system_prompt = """
-    You are a data extraction assistant. Extract the expiry date from the license image.
-    Output ONLY the date in YYYY-MM-DD format. If no date is found, output: NONE
+    You are a data extraction assistant. Extract card details from text. Return STRICT JSON ONLY:
+        {
+        "card_type": "CWR" | "GREEN_CARD" | "SPP" ,
+        "expiry_date": "YYYY-MM-DD" | "NONE"
+        }""
     """
-
     base64_image = base64.b64encode(image).decode('utf-8')
 
     messages=[
-            {
-                "role": "system",
-                "content": system_prompt, 
-            },
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": "What is the expiry date?"},
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/jpeg;base64,{base64_image}"
-                        },
+        {
+            "role": "system",
+            "content": system_prompt, 
+        },
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "What is in this image?"},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}"
                     },
-                ],
-            },
-        ]
+                },
+            ],
+        },
+    ]
 
     response = client.chat.completions.create(
-        model = "deepseek-chat",
+        model = "deepseek-v4-flash-vision-exp",
         messages = messages,
         stream = False,
     )
