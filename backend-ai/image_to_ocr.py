@@ -75,6 +75,7 @@ def extract_date_from_image(image):
     system_prompt = """
     You are a data extraction assistant. Extract card details from text. Return STRICT JSON ONLY:
         {
+        "name": "name of the card holder"
         "card_type": "CWR" | "GREEN_CARD" | "SPP" ,
         "expiry_date": "YYYY-MM-DD" | "NONE"
         }""

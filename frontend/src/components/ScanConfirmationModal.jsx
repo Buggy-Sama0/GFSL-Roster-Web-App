@@ -6,16 +6,27 @@ export default function ScanConfirmationModal({
   onConfirm,
   extractedData,
   isSaving = false,
+  employee_data,
 }) {
   const [formData, setFormData] = useState({
+    name: '',
     card_type: '',
     expiry_date: '',
   });
+
+  const COLUMN_MAP = {
+    CWR: 'cwr_expiry_date',
+    GREEN_CARD: 'green_card_expiry_date',
+    SPP: 'spp_expiry_date',
+  };
+
+  const card_type = COLUMN_MAP[formData?.card_type]
 
   // Sync state when new extracted data arrives
   useEffect(() => {
     if (extractedData) {
       setFormData({
+        name: extractedData.name || '',
         card_type: extractedData.card_type || '',
         expiry_date: extractedData.expiry_date || '',
       });
@@ -50,6 +61,7 @@ export default function ScanConfirmationModal({
               <p className="text-[12px] text-slate-500">Confirm or adjust extracted information</p>
             </div>
           </div>
+
           <button
             onClick={onClose}
             disabled={isSaving}
@@ -64,6 +76,18 @@ export default function ScanConfirmationModal({
 
         {/* Body Fields */}
         <div className="p-6 space-y-4">
+          {/* Context Banner */}
+          <div className="p-3.5 bg-blue-50/70 rounded-xl border border-blue-100/80 text-xs text-slate-700 leading-relaxed space-y-1">
+            <p>
+              This document belongs to <strong className="font-semibold text-slate-900">{formData.name || 'Selected Employee'}</strong>.
+            </p>
+            <p className="text-slate-600">
+              The <span className="font-semibold text-slate-800">{formData.card_type || 'License'}</span> expiry date will be updated from{' '}
+              <span className="font-mono text-slate-500">{employee_data?.[card_type] || 'Not Set'}</span> to{' '}
+              <span className="font-mono font-semibold text-blue-700">{formData.expiry_date || 'N/A'}</span>.
+            </p>
+          </div>
+
           <div>
             <label className="block text-[12px] font-semibold text-slate-700 mb-1.5">
               License / Card Type

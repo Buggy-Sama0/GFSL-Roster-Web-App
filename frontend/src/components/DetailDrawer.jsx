@@ -302,6 +302,7 @@ export default function DetailDrawer({ record, onClose }) {
           onConfirm={handleConfirmScan}
           extractedData={scanResult}
           isSaving={isSaving}
+          employee_data={record}
         />
 
         {/* Secondary Reminder Action Button */}
