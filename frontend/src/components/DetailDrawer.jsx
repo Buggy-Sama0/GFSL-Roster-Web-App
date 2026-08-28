@@ -15,8 +15,8 @@ export default function DetailDrawer({ record, onClose }) {
   const handleSubmit = async () => {
     const formData = new FormData();
     if (file) formData.append('file', file);
-    // const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8000';
-    const API_BASE_URL = 'http://localhost:8000'
+    const API_BASE_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:8000';
+    // const API_BASE_URL = 'http://localhost:8000'
     setIsScanning(true)
     try {
       const response = await fetch(`${API_BASE_URL}/extract-data`, {
