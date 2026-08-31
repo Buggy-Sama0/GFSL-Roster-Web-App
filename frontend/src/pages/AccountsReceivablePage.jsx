@@ -513,17 +513,23 @@ export default function AccountsReceivablePage() {
                       <td className="py-3 text-slate-400">{inv.due_date}</td>
                       {/* <td className="py-3 text-slate-400">{inv.age}</td> */}
                       <td className="py-3 text-right">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[12px] font-bold ${
-                            inv.status.toLocaleString() === 'paid'
-                              ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/50'
-                              : inv.status.toLocaleString() === 'overdue'
-                              ? 'bg-red-950/60 text-red-300 border border-red-800/50'
-                              : 'bg-amber-950/80 text-amber-400 border border-amber-800/50'
-                          }`}
-                        >
-                          {inv.status.toLocaleString() === 'paid' ? inv.status : new Date().setHours(0, 0, 0, 0) > new Date(inv.due_date).setHours(0, 0, 0, 0) ? 'Overdue' : 'Pending'}
-                        </span>
+                        {(() => {
+                          const isPaid = inv.status?.toLowerCase() === 'paid';
+                          const isOverdue = !isPaid && new Date().setHours(0, 0, 0, 0) > new Date(inv.due_date).setHours(0, 0, 0, 0);
+                          
+                          const label = isPaid ? inv.status : isOverdue ? 'Overdue' : 'Pending';
+                          const style = isPaid
+                            ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/50'
+                            : isOverdue
+                            ? 'bg-red-950/60 text-red-300 border border-red-800/50'
+                            : 'bg-amber-950/80 text-amber-400 border border-amber-800/50';
+
+                          return (
+                            <span className={`px-2 py-0.5 rounded text-[12px] font-bold ${style}`}>
+                              {label}
+                            </span>
+                          );
+                        })()}
                       </td>
                     </tr>
                   ))}
