@@ -517,7 +517,7 @@ export default function AccountsReceivablePage() {
                           const isPaid = inv.status?.toLowerCase() === 'paid';
                           const isOverdue = !isPaid && new Date().setHours(0, 0, 0, 0) > new Date(inv.due_date).setHours(0, 0, 0, 0);
                           
-                          const label = isPaid ? inv.status : isOverdue ? 'Overdue' : 'Pending';
+                          const label = isPaid ? 'Paid' : isOverdue ? 'Overdue' : 'Pending';
                           const style = isPaid
                             ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-800/50'
                             : isOverdue
