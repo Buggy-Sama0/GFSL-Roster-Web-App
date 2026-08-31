@@ -18,7 +18,7 @@ def get_ending_contracts():
     try:
         response = supabase.table("clients").select("client_name, contract_no, end_date").gte('end_date', today.isoformat()).lte('end_date', threshold.isoformat()).execute()
         for client in response.data:
-            print(f'{client['client_name']} (Contract No. {client['contract_no']}) - Ending {client['end_date']}')     
+            print(f"{client['client_name']} (Contract No. {client['contract_no']}) - Ending {client['end_date']}")     
             # ending_contracts.append({'client_name': client['client_name'], 'contract_no': client['contract_no'], 'end_date': client['end_date']})
 
         return response.data or []   

@@ -2,9 +2,8 @@ import io
 import os
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
-from realtime import Field, Optional
 from pathlib import Path
-from typing import Annotated
+from typing import Annotated, Optional
 from csv_converter import csv_converter
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv

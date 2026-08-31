@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { BarChart, Bar, Legend, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
 import supabase from '../services/supabase/client';
 
@@ -20,38 +20,25 @@ export default function AccountsReceivablePage() {
   const [selectedMonth, setSelectedMonth] = useState('All');
   const [itemsPerPage] = useState(7);
   const [currentPage, setCurrentPage] = useState(0);
-  const [clients, setClients] = useState([]);
   const [invoicesData, setInvoicesData] = useState([]);
 
-  const [opacity, setOpacity] = useState(DEFAULT_OPACITY);
-  const [activeKey, setActiveKey] = useState(null);
-
-  useEffect(() => {
-    async function fetchClients() {
-    
-        try {
-            const { data, error } = await supabase.from('clients').select('*');
-            setClients(data);
-            // console.log('Fetched clients data:', data);
-        } catch (error) {
-            console.error('Error fetching clients data:', error);
-        }
-    }
-    fetchClients();
-    }, [])
-
+  // 1. Single JOIN query replacing separate client & invoice fetches
   useEffect(() => {
     async function fetchInvoices() {
-        try {
-            const { data, error } = await supabase.from('invoices').select('*');
-            setInvoicesData(data);
-            // console.log('Fetched invoices data:', data);
-        } catch (error) {
-            console.error('Error fetching invoices data:', error);
-        }
+      try {
+        const { data, error } = await supabase
+          .from('invoices')
+          .select('*, clients(client_name)');
+
+        if (error) throw error;
+        console.log('Fetched Data: ', data)
+        setInvoicesData(data || []);
+      } catch (error) {
+        console.error('Error fetching invoices:', error);
+      }
     }
     fetchInvoices();
-    }, [])
+  }, []);
 
   const formatToCurrency = (value) => {
     if (value === 0) return '$0';
@@ -81,9 +68,11 @@ export default function AccountsReceivablePage() {
       acc[date].Collected += collected;
       return acc;
     }, {});
-    return Object.entries(groupedData).map(([date, amounts]) => ({ date, ...amounts }));
+    console.log(groupedData);
+    
+    return Object.values(groupedData).sort((a, b) => a.date.localeCompare(b.date))
   }, [invoicesData]);
-  // console.log('chartData:', chartData);
+  console.log('chartData:', chartData);
 
   const monthOptions = useMemo(() => {
     const uniqueMonths = new Set();
@@ -108,8 +97,8 @@ export default function AccountsReceivablePage() {
   const filteredInvoices = useMemo(() => {
     return invoicesData.filter((invoice) => {
       const query = searchQuery.toLowerCase().trim();
-      const matchedClient = clients.find(client => client.id === invoice.client_id);
-      const matchesSearch = matchedClient?.client_name.toLowerCase().includes(query);
+      const clientName = invoice.clients?.client_name?.toLowerCase() || '';
+      const matchesSearch = !query || clientName.includes(query);
 
       const invoiceDate = invoice.issue_date ? new Date(invoice.issue_date) : null;
       const invoiceMonth = invoiceDate && !Number.isNaN(invoiceDate.getTime())
@@ -120,7 +109,7 @@ export default function AccountsReceivablePage() {
       if (activeTab == 'All') return matchesSearch && matchesMonth;
       return matchesSearch && matchesMonth && invoice.status?.toLowerCase() === activeTab.toLowerCase();
     });
-  }, [invoicesData, clients, searchQuery, activeTab, selectedMonth]);
+  }, [invoicesData, searchQuery, activeTab, selectedMonth]);
   //   console.log('filteredInvoices:', filteredInvoices);
 
   const totalReceivables = useMemo(() => {
@@ -144,7 +133,9 @@ export default function AccountsReceivablePage() {
     }, 0)
   }, [filteredInvoices]);
 
-  const collectionRate = ((paymentReceived/totalReceivables)*100).toFixed(2) || 0
+  const collectionRate = totalReceivables > 0 
+    ? ((paymentReceived / totalReceivables) * 100).toFixed(2) 
+    : '0.00';
 
   const overdueInvoices = useMemo(() => {
     return filteredInvoices.reduce((sum, invoice) => {
@@ -215,13 +206,14 @@ export default function AccountsReceivablePage() {
     const today= new Date()
     invoicesData.forEach((invoice) => {
       const due_date = new Date(invoice.due_date)
-      const days = Math.abs(Math.ceil(((due_date - today) / (1000 * 60 * 60 * 24))))
-      if (days <= 0 || invoice?.status?.toLowerCase()==='paid') return;
-      if (days<=30) {
+      const diffTime = today - due_date;
+      const overdueDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      if (overdueDays <= 0 || invoice?.status?.toLowerCase()==='paid') return;
+      if (overdueDays<=30) {
         agingData[0].amount += invoice.applied_amount
-      } else if (days>30 && days<=60) {
+      } else if (overdueDays>30 && overdueDays<=60) {
         agingData[1].amount += invoice.applied_amount
-      } else if (days>60 && days<=90) {
+      } else if (overdueDays>60 && overdueDays<=90) {
         agingData[2].amount += invoice.applied_amount
       } else {
         agingData[3].amount += invoice.applied_amount
@@ -229,6 +221,26 @@ export default function AccountsReceivablePage() {
     })
     return agingData.map((data) => ({...data, amount: data.amount.toFixed(2) }) )
   }, [invoicesData])
+
+
+  const getOverdueTime = (status, dueDate) => {
+    if (status?.toLowerCase() === 'paid') return 'Settled';
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(dueDate);
+    due.setHours(0, 0, 0, 0);
+
+    if (today<= due) return '-'
+
+    const diffTime = today - due
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays<30) return `${diffDays} Days`
+    const months = Math.floor(diffDays/30)
+    return `${months} ${months === 1 ? 'Month' : 'Months'}`;
+  }
+
   // console.log(barChartData)
 
   // const expiryDate = useMemo(() => {
@@ -482,7 +494,7 @@ export default function AccountsReceivablePage() {
                 <thead>
                   <tr className="text-slate-500 border-b border-[#1E2638] font-semibold">
                     <th className="pb-3 uppercase">Client</th>
-                    <th className="pb-3 uppercase">Issue Date</th>
+                    <th className="pb-3 uppercase">Invoice Month</th>
                     <th className="pb-3 uppercase">Amount</th>
                     <th className="pb-3 uppercase">Overdue By</th>
                     <th className="pb-3 uppercase">Due</th>
@@ -492,11 +504,11 @@ export default function AccountsReceivablePage() {
                 <tbody className="divide-y divide-[#1E2638]">
                   {paginatedInvoices.map((inv) => (
                     <tr key={inv.id} className="hover:bg-slate-800/30 transition-colors">
-                      <td className="py-3 text-slate-200 font-medium">{clients.find(client => client.id === inv.client_id)?.client_name || 'Unknown Client'}</td>
+                      <td className="py-3 text-slate-200 font-medium">{inv.clients?.client_name || 'Unknown Client'}</td>
                       <td className="py-3 text-slate-400">{inv.issue_date}</td>
                       <td className="py-3 text-white font-bold">${inv.applied_amount.toLocaleString()}</td>
                       <td className={`py-3 ${inv.status.toLocaleString() === 'paid' ? 'text-green-400' : inv.status.toLocaleString()==='pending'? 'text-amber-400' : 'text-red-400'}`}>
-                        {inv.status.toLocaleString() === 'paid' ? 'Settled' : `${Math.abs(Math.ceil(((new Date(inv.due_date) - new Date()) / (1000 * 60 * 60 * 24))/30))} Month`}
+                        {getOverdueTime(inv.status, inv.due_date)}
                       </td>
                       <td className="py-3 text-slate-400">{inv.due_date}</td>
                       {/* <td className="py-3 text-slate-400">{inv.age}</td> */}
@@ -510,7 +522,7 @@ export default function AccountsReceivablePage() {
                               : 'bg-amber-950/80 text-amber-400 border border-amber-800/50'
                           }`}
                         >
-                          {inv.status.toLocaleString() === 'paid' ? inv.status : `${Math.abs(Math.ceil(((new Date(inv.due_date) - new Date()) / (1000 * 60 * 60 * 24))/30))}`>=1 ? 'Overdue' : 'Pending'}
+                          {inv.status.toLocaleString() === 'paid' ? inv.status : new Date().setHours(0, 0, 0, 0) > new Date(inv.due_date).setHours(0, 0, 0, 0) ? 'Overdue' : 'Pending'}
                         </span>
                       </td>
                     </tr>
