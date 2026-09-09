@@ -35,7 +35,7 @@ Main Supabase tables:
 
 #### 2. License Compliance Management
 
-![Accounts receivable dashboard](demo/licence_dashboard.png)
+![Licence dashboard](demo/licence_dashboard.png)
 
 Route:
 
@@ -64,6 +64,8 @@ Features:
 - Shows license validity timelines.
 
 #### 3. Accounts Receivable Dashboard
+
+![Licence dashboard](demo/account_preview.png)
 
 Route:
 
@@ -107,6 +109,8 @@ Main Supabase tables:
 
 #### 4. AI Document and Roster Assistant
 
+![Licence dashboard](demo/scanner_preview.png)
+
 Route:
 
 ```text
@@ -136,7 +140,29 @@ Frontend API request:
 POST /convert
 ```
 
-#### 5. License Expiry Notifications
+#### 5. AI licence Scanner
+
+![Licence dashboard](demo/licence_scanner.gif)
+
+Inside Route:
+
+```text
+/scan
+```
+
+Features:
+
+- Allows users to upload an image.
+- The LLM wil extract the required field nased on the image
+- A confirmation will appear before updating the data
+
+Frontend API request:
+
+```text
+POST /extract-data
+```
+
+#### 6. License Expiry Notifications
 
 The backend checks employee license dates and identifies:
 
@@ -156,7 +182,7 @@ The scheduled license check runs daily at:
 09:00 Hong Kong time
 ```
 
-#### 6. Contract Expiry Notifications
+#### 7. Contract Expiry Notifications
 
 The backend checks client contracts ending within approximately 30 days.
 
@@ -172,7 +198,7 @@ The scheduled contract check runs daily at:
 09:30 Hong Kong time
 ```
 
-#### 7. Backend API
+#### 8. Backend API
 
 Backend location:
 
