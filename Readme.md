@@ -1,4 +1,4 @@
-## Security Roster App Project Summary
+## Security Portal App Project Summary
 
 This is a web-based security operations and workforce management application for managing security guards, licenses, client contracts, invoices, and document processing.
 
