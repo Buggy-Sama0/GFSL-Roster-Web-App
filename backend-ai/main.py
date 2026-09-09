@@ -79,7 +79,7 @@ async def convert_data(
 @app.post("/extract-data")
 async def extract_data(file: UploadFile = File()):
     """
-    Extracts structured data from raw text using OpenAI's API.
+    Extracts structured data from image using OpenAI's API.
 
     Args:
         file (UploadFile): The uploaded image file.
