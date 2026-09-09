@@ -1,6 +1,6 @@
 ## Security Roster App Project Summary
 
-This is a web-based security operations and workforce management application for managing security guards, weekly rosters, licenses, client contracts, invoices, and document processing.
+This is a web-based security operations and workforce management application for managing security guards, licenses, client contracts, invoices, and document processing.
 
 ### Technology Stack
 
@@ -26,34 +26,16 @@ This is a web-based security operations and workforce management application for
 - Authenticated users are redirected to `/roster`.
 - Idle timeout functionality is included for automatic session protection.
 
-#### 2. Weekly Security Roster
-
-Route:
-
-```text
-/roster
-```
-
-Features:
-
-- Displays security guards in a weekly Monday-to-Sunday roster.
-- Supports previous-week and next-week navigation.
-- Displays day and night shifts.
-- Shows scheduled, off-duty, and leave statuses.
-- Allows users to toggle individual shifts.
-- Allows users to toggle an employee’s weekly schedule.
-- Saves schedule changes to Supabase.
-- Supports site-based roster filtering.
-- Highlights guards with expired licenses.
-- Allows users to resolve leave conflicts.
 
 Main Supabase tables:
 
 - `employees`
-- `schedules`
-- `sites`
+- `invoices`
+- `clients`
 
-#### 3. License Compliance Management
+#### 2. License Compliance Management
+
+![Accounts receivable dashboard](demo/licence_dashboard.png)
 
 Route:
 
@@ -81,7 +63,7 @@ Features:
 - Supports document upload for license renewal or rescanning. (AI extracts the data from image)
 - Shows license validity timelines.
 
-#### 4. Accounts Receivable Dashboard
+#### 3. Accounts Receivable Dashboard
 
 Route:
 
@@ -123,7 +105,7 @@ Main Supabase tables:
 - `invoices`
 - `clients`
 
-#### 5. AI Document and Roster Assistant
+#### 4. AI Document and Roster Assistant
 
 Route:
 
@@ -154,7 +136,7 @@ Frontend API request:
 POST /convert
 ```
 
-#### 6. License Expiry Notifications
+#### 5. License Expiry Notifications
 
 The backend checks employee license dates and identifies:
 
@@ -174,7 +156,7 @@ The scheduled license check runs daily at:
 09:00 Hong Kong time
 ```
 
-#### 7. Contract Expiry Notifications
+#### 6. Contract Expiry Notifications
 
 The backend checks client contracts ending within approximately 30 days.
 
@@ -190,7 +172,7 @@ The scheduled contract check runs daily at:
 09:30 Hong Kong time
 ```
 
-#### 8. Backend API
+#### 7. Backend API
 
 Backend location:
 
@@ -222,22 +204,22 @@ Processes an uploaded license image and attempts to extract an expiry date using
 
 ```text
 /login       Login page
-/roster      Weekly security roster
+/roster      Placeholder page for future use
 /scan        AI document scanner
-/licences    License compliance register
+/licences    License compliance dashboard
 /accounts    Accounts receivable dashboard
-/leave       Placeholder page
-/settings    Placeholder page
+/leave       Placeholder page for future use
+/settings    Placeholder page for future use
 ```
 
 ### Data Flow
 
 1. The frontend authenticates users through Supabase.
 2. React components query Supabase tables directly for operational data.
-3. Roster changes are written back to the `schedules` table.
 4. License statuses are calculated from employee expiry dates.
 5. Documents and raw text are sent to the FastAPI backend.
 6. The backend uses AI and conversion utilities to process documents.
 7. APScheduler runs automated license and contract notification jobs.
+8. Licenses can be updated from the client-side by uploading image of a licence
 
 
